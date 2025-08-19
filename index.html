@@ -1,137 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Internet Speed Test | WiFi & Mobile Data</title>
-  <meta name="description"
-    content="Free AI-powered Internet Speed Test. Instantly check your WiFi or Mobile (SIM) speed with Download, Upload, and Ping results.">
-  <meta name="keywords"
-    content="Internet Speed Test, WiFi Speed, Mobile Speed, AI Speed Tester, Fast Internet Check, Download Upload Ping">
-  <meta name="author" content="AI Speed Test">
-
-  <!-- Open Graph SEO -->
-  <meta property="og:title" content="AI Internet Speed Test">
-  <meta property="og:description"
-    content="Free AI-powered Internet Speed Test. Check WiFi & SIM speed with Download, Upload & Ping.">
-  <meta property="og:image" content="logo.png">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yourwebsite.com/">
-
-  <!-- Twitter SEO -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AI Internet Speed Test">
-  <meta name="twitter:description" content="Free AI-powered Internet Speed Test for WiFi & Mobile.">
-  <meta name="twitter:image" content="logo.png">
-
-  <!-- Favicon links -->
+  <title>AI Internet Speed Test</title>
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
 
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Free AI-powered Internet Speed Test for WiFi & Mobile Data (SIM). Check Download, Upload & Ping instantly.">
+  <meta property="og:title" content="AI Internet Speed Test">
+  <meta property="og:description" content="Test your WiFi & SIM Internet speed instantly with AI-powered design.">
+  <meta property="og:image" content="logo.png">
+  <meta property="og:type" content="website">
+
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
       margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #1e1e2f, #2e2e4f);
-      color: #fff;
+      text-align: center;
     }
-
-    header {
-      margin-top: 30px;
+    .card {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 100%;
     }
-
-    header img {
+    img.logo {
       width: 120px;
-      height: auto;
+      margin-bottom: 15px;
     }
-
     h1 {
-      margin-top: 20px;
-      font-size: 32px;
-      background: linear-gradient(to right, #00e5ff, #ff00d4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #38bdf8;
     }
-
     button {
-      padding: 15px 40px;
-      font-size: 18px;
+      background: #38bdf8;
       border: none;
-      border-radius: 12px;
-      background: linear-gradient(45deg, #00e5ff, #ff00d4);
-      color: #fff;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 8px;
       cursor: pointer;
-      margin-top: 20px;
-      transition: transform 0.2s;
+      transition: 0.3s;
     }
-
     button:hover {
-      transform: scale(1.05);
+      background: #0ea5e9;
     }
-
-    #result {
-      margin-top: 40px;
-      font-size: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 12px;
-      display: inline-block;
-      min-width: 250px;
-    }
-
-    footer {
-      margin-top: 50px;
-      font-size: 14px;
-      opacity: 0.7;
+    .results {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      line-height: 2rem;
     }
   </style>
 </head>
-
-
 <body>
-  <header><img src="logo.png" alt="AI Speed Test Logo"></header>
-  <h1>⚡ AI Internet Speed Test</h1>
-  <p>Check your WiFi or Mobile Internet Speed (Download, Upload & Ping)</p>
-  <button onclick="runSpeedTest()">Start Test</button>
-  <div id="result">Click "Start Test" to begin</div>
-  <footer>
-    <p>© 2025 AI Speed Test | Free Online WiFi & SIM Speed Checker</p>
-  </footer>
+  <div class="card">
+    <img src="logo.png" alt="AI Speed Test Logo" class="logo">
+    <h1>AI Internet Speed Test</h1>
+    <button onclick="startTest()">🚀 Start Test</button>
+
+    <div class="results">
+      <p>Download: <span id="download">0</span> Mbps</p>
+      <p>Upload: <span id="upload">0</span> Mbps</p>
+      <p>Ping: <span id="ping">0</span> ms</p>
+    </div>
+  </div>
+
+  <!-- LibreSpeed JS -->
+  <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest@latest/speedtest.js"></script>
   <script>
-    async function runSpeedTest() {
-      const resultEl = document.getElementById("result");
-      resultEl.innerHTML = "Testing download speed... ⏳";
-      const downloadUrl = "https://speed.hetzner.de/10MB.bin";
-      const startTime = performance.now();
-      const response = await fetch(downloadUrl);
-      const blob = await response.blob();
-      const endTime = performance.now();
-      const fileSize = blob.size * 8;
-      const duration = (endTime - startTime) / 1000;
-      const downloadMbps = (fileSize / duration) / (1024 * 1024);
-      resultEl.innerHTML = `📥 Download: ${downloadMbps.toFixed(2)} Mbps<br>Testing upload speed... ⏳`;
-      const data = new Blob([new ArrayBuffer(2 * 1024 * 1024)]);
-      const uploadStart = performance.now();
-      await fetch("https://httpbin.org/post", { method: "POST", body: data });
-      const uploadEnd = performance.now();
-      const uploadDuration = (uploadEnd - uploadStart) / 1000;
-      const uploadMbps = ((data.size * 8) / uploadDuration) / (1024 * 1024);
-      resultEl.innerHTML = `📥 Download: ${downloadMbps.toFixed(2)} Mbps<br>📤 Upload: ${uploadMbps.toFixed(2)} Mbps<br>Testing ping... ⏳`;
-      let pingTotal = 0;
-      const pingTests = 5;
-      for (let i = 0; i < pingTests; i++) {
-        const pingStart = performance.now();
-        await fetch("https://httpbin.org/get");
-        const pingEnd = performance.now();
-        pingTotal += (pingEnd - pingStart);
-      }
-      const avgPing = pingTotal / pingTests;
-      resultEl.innerHTML = `📥 Download: ${downloadMbps.toFixed(2)} Mbps<br>📤 Upload: ${uploadMbps.toFixed(2)} Mbps<br>📡 Ping: ${avgPing.toFixed(2)} ms`;
+    var s = new Speedtest();
+
+    function startTest() {
+      s.onupdate = function (data) {
+        document.getElementById("download").innerText = data.dlStatus;
+        document.getElementById("upload").innerText = data.ulStatus;
+        document.getElementById("ping").innerText = data.pingStatus;
+      };
+      s.onend = function () {
+        console.log("Test finished!");
+      };
+      s.start();
     }
   </script>
 </body>
-
 </html>
