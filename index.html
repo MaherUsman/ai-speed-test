@@ -4,15 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Internet Speed Test</title>
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
-
-  <!-- SEO Meta Tags -->
   <meta name="description" content="Free AI-powered Internet Speed Test for WiFi & Mobile Data (SIM). Check Download, Upload & Ping instantly.">
-  <meta property="og:title" content="AI Internet Speed Test">
-  <meta property="og:description" content="Test your WiFi & SIM Internet speed instantly with AI-powered design.">
-  <meta property="og:image" content="logo.png">
-  <meta property="og:type" content="website">
 
   <style>
     body {
@@ -34,10 +26,6 @@
       box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
       max-width: 400px;
       width: 100%;
-    }
-    img.logo {
-      width: 120px;
-      margin-bottom: 15px;
     }
     h1 {
       font-size: 1.5rem;
@@ -66,7 +54,6 @@
 </head>
 <body>
   <div class="card">
-    <img src="logo.png" alt="AI Speed Test Logo" class="logo">
     <h1>AI Internet Speed Test</h1>
     <button onclick="startTest()">🚀 Start Test</button>
 
@@ -77,20 +64,29 @@
     </div>
   </div>
 
-  <!-- LibreSpeed JS -->
-  <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest@latest/speedtest.js"></script>
+  <!-- LibreSpeed Client -->
+  <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest@5.3.0/speedtest.js"></script>
   <script>
     var s = new Speedtest();
 
     function startTest() {
+      s.setParameter("telemetry_level", "basic"); 
+      s.setParameter("test_order", "IP_DL_UL_PING"); 
+      s.setParameter("backend_servers", [
+        {name:"LibreSpeed (US)", server:"https://nyc1.openspeed.org/backend/"},
+        {name:"LibreSpeed (Europe)", server:"https://fra.openspeed.org/backend/"}
+      ]);
+
       s.onupdate = function (data) {
         document.getElementById("download").innerText = data.dlStatus;
         document.getElementById("upload").innerText = data.ulStatus;
         document.getElementById("ping").innerText = data.pingStatus;
       };
+
       s.onend = function () {
-        console.log("Test finished!");
+        console.log("✅ Test finished");
       };
+
       s.start();
     }
   </script>
