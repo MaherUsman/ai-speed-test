@@ -12,7 +12,6 @@
   <meta property="og:image" content="favicon.png">
 
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
 
   <style>
     body {
@@ -42,6 +41,7 @@
       max-width: 480px;
       width: 90%;
       backdrop-filter: blur(10px);
+      position: relative;
     }
     .logo {
       width: 80px;
@@ -82,7 +82,22 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-      transition: width 0.3s ease;
+      transition: width 0.2s ease;
+    }
+    /* Loader spinner */
+    .loader {
+      display: none;
+      margin: 20px auto;
+      border: 6px solid #1e293b;
+      border-top: 6px solid #38bdf8;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -90,7 +105,9 @@
   <div class="card">
     <img src="favicon.png" alt="AI Speed Test Logo" class="logo">
     <h1>AI Internet Speed Test</h1>
-    <button onclick="start()">🚀 Start Test</button>
+    <button id="startBtn" onclick="start()">🚀 Start Test</button>
+
+    <div class="loader" id="loader"></div>
 
     <div class="progress-bar"><div class="progress" id="progress"></div></div>
 
@@ -106,27 +123,33 @@
   <script src="https://cdn.jsdelivr.net/gh/adolfintel/speedtest/speedtest.js"></script>
   <script>
     let s = new Speedtest();
+    let progressEl = document.getElementById("progress");
+    let loaderEl = document.getElementById("loader");
+    let startBtn = document.getElementById("startBtn");
 
     function start() {
-      document.getElementById("progress").style.width = "0%";
+      startBtn.disabled = true;
+      loaderEl.style.display = "block";
+      progressEl.style.width = "0%";
+
       s.onupdate = data => {
         if (data.dlStatus) document.getElementById("download").textContent = data.dlStatus;
         if (data.ulStatus) document.getElementById("upload").textContent = data.ulStatus;
         if (data.pingStatus) document.getElementById("ping").textContent = data.pingStatus;
         if (data.jitterStatus) document.getElementById("jitter").textContent = data.jitterStatus;
 
-        // Progress bar based on test phase
-        if (data.testState === 1) {
-          document.getElementById("progress").style.width = "25%";
-        } else if (data.testState === 2) {
-          document.getElementById("progress").style.width = "60%";
-        } else if (data.testState === 3) {
-          document.getElementById("progress").style.width = "90%";
-        }
+        // Animate progress % depending on test state
+        let pct = 0;
+        if (data.testState === 1) pct = 25;
+        else if (data.testState === 2) pct = 60;
+        else if (data.testState === 3) pct = 90;
+        progressEl.style.width = pct + "%";
       };
 
       s.onend = () => {
-        document.getElementById("progress").style.width = "100%";
+        loaderEl.style.display = "none";
+        progressEl.style.width = "100%";
+        startBtn.disabled = false;
       };
 
       s.start();
