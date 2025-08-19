@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Internet Speed Test | WiFi & Mobile Data</title>
-  <meta name="description" content="Free AI-powered Internet Speed Test for WiFi & Mobile Data. Instantly check Download, Upload & Ping.">
-  <meta name="keywords" content="internet speed test, wifi speed, mobile internet, AI speed test, download upload test, ping test">
+  <meta name="description" content="Free AI-powered Internet Speed Test for WiFi & Mobile Data. Instantly check Download Speed with Netflix Fast.com API.">
+  <meta name="keywords" content="internet speed test, wifi speed, mobile internet, AI speed test, download test, fast.com">
   <meta property="og:title" content="AI Internet Speed Test">
   <meta property="og:description" content="Test your WiFi & SIM internet speed instantly. Free AI-powered speed test with real results.">
   <meta property="og:type" content="website">
@@ -69,8 +69,53 @@
     }
     .results {
       margin-top: 25px;
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       line-height: 2rem;
+    }
+
+    /* Loader animation */
+    .loader {
+      display: none;
+      margin: 20px auto;
+      width: 60px;
+      height: 60px;
+      position: relative;
+    }
+    .circle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 5px solid #38bdf8;
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation: pulse 1.5s infinite ease-in-out;
+      opacity: 0.7;
+    }
+    .circle:nth-child(2) {
+      animation-delay: 0.75s;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.6); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 0.3; }
+      100% { transform: scale(0.6); opacity: 0.7; }
+    }
+
+    /* Progress bar */
+    .progress-container {
+      display: none;
+      width: 100%;
+      background: #1e293b;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 20px;
+      height: 12px;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+      transition: width 0.2s;
     }
   </style>
 </head>
@@ -80,39 +125,75 @@
     <h1>AI Internet Speed Test</h1>
     <button onclick="startTest()">🚀 Start Test</button>
 
+    <!-- Animated loader -->
+    <div class="loader" id="loader">
+      <div class="circle"></div>
+      <div class="circle"></div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
     <div class="results">
       <p>Download: <span id="download">0</span> Mbps</p>
-      <p>Upload: <span id="upload">0</span> Mbps</p>
-      <p>Ping: <span id="ping">0</span> ms</p>
     </div>
   </div>
 
-  <!-- Load official LibreSpeed client -->
-  <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest@5.3.0/speedtest.js"></script>
+  <!-- Fast.com hidden API (Netflix) -->
   <script>
-    var s = new Speedtest();
+    async function startTest() {
+      let downloadSpan = document.getElementById("download");
+      let loader = document.getElementById("loader");
+      let progressContainer = document.getElementById("progressContainer");
+      let progressBar = document.getElementById("progressBar");
 
-    function startTest() {
-      s.setParameter("telemetry_level", "basic"); 
-      s.setParameter("test_order", "IP_DL_UL_PING");
+      downloadSpan.innerText = "Testing...";
+      loader.style.display = "block";
+      progressContainer.style.display = "block";
+      progressBar.style.width = "0%";
 
-      // Use LibreSpeed public servers
-      s.setParameter("backend_servers", [
-        {name:"LibreSpeed - New York", server:"https://nyc1.openspeed.org/backend/"},
-        {name:"LibreSpeed - Germany", server:"https://fra.openspeed.org/backend/"}
-      ]);
+      try {
+        // Get list of test servers
+        let tokenResp = await fetch("https://api.fast.com/netflix/speedtest/v2");
+        let tokenData = await tokenResp.json();
+        let urls = tokenData.targets.map(t => t.url);
+        let testUrl = urls[0] + "?cache=" + Math.random();
 
-      s.onupdate = function (data) {
-        document.getElementById("download").innerText = data.dlStatus || "0";
-        document.getElementById("upload").innerText = data.ulStatus || "0";
-        document.getElementById("ping").innerText = data.pingStatus || "0";
-      };
+        // Download 25 MB file in chunks
+        let controller = new AbortController();
+        let resp = await fetch(testUrl + "&bytes=25000000", { signal: controller.signal });
+        let reader = resp.body.getReader();
+        let receivedLength = 0;
+        let chunks = [];
+        let totalSize = 25 * 1024 * 1024; // 25MB
+        let startTime = new Date().getTime();
 
-      s.onend = function () {
-        console.log("✅ Test finished");
-      };
+        while (true) {
+          const {done, value} = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          receivedLength += value.length;
 
-      s.start();
+          // Update progress bar
+          let percent = (receivedLength / totalSize) * 100;
+          progressBar.style.width = percent.toFixed(1) + "%";
+        }
+
+        let endTime = new Date().getTime();
+        let duration = (endTime - startTime) / 1000;
+        let bitsLoaded = receivedLength * 8;
+        let speedMbps = (bitsLoaded / duration / 1024 / 1024).toFixed(2);
+
+        downloadSpan.innerText = speedMbps + " Mbps";
+      } catch (err) {
+        downloadSpan.innerText = "Error";
+        console.error(err);
+      } finally {
+        loader.style.display = "none";
+        progressBar.style.width = "100%";
+      }
     }
   </script>
 </body>
