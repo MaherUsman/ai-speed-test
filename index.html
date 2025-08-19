@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Internet Speed Test | Check WiFi & Mobile Data Speed</title>
-  <meta name="description" content="Free AI-powered Internet Speed Test for WiFi & Mobile Data (SIM). Instantly check Download, Upload & Ping with real-time results.">
-  <meta name="keywords" content="internet speed test, wifi speed test, mobile data speed, AI speed test, ping test, upload speed, download speed">
+  <title>AI Internet Speed Test | WiFi & Mobile Data</title>
+  <meta name="description" content="Free AI-powered Internet Speed Test for WiFi & Mobile Data. Instantly check Download, Upload & Ping.">
+  <meta name="keywords" content="internet speed test, wifi speed, mobile internet, AI speed test, download upload test, ping test">
   <meta property="og:title" content="AI Internet Speed Test">
   <meta property="og:description" content="Test your WiFi & SIM internet speed instantly. Free AI-powered speed test with real results.">
   <meta property="og:type" content="website">
@@ -17,7 +17,7 @@
 
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #0f172a, #1e293b, #0ea5e9);
       color: #f8fafc;
       display: flex;
@@ -30,13 +30,11 @@
       background-size: 300% 300%;
       animation: gradientShift 15s ease infinite;
     }
-
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
     .card {
       background: rgba(30, 41, 59, 0.9);
       padding: 30px;
@@ -45,25 +43,16 @@
       max-width: 450px;
       width: 90%;
       backdrop-filter: blur(10px);
-      animation: fadeIn 1.5s ease;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     .logo {
       width: 80px;
       margin-bottom: 15px;
     }
-
     h1 {
       font-size: 1.8rem;
       margin-bottom: 20px;
       color: #38bdf8;
     }
-
     button {
       background: #38bdf8;
       border: none;
@@ -74,29 +63,14 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
     button:hover {
       background: #0ea5e9;
       transform: scale(1.05);
     }
-
     .results {
       margin-top: 25px;
       font-size: 1.2rem;
       line-height: 2rem;
-    }
-
-    @media (max-width: 600px) {
-      .card {
-        padding: 20px;
-      }
-      h1 {
-        font-size: 1.5rem;
-      }
-      button {
-        font-size: 1rem;
-        padding: 12px 20px;
-      }
     }
   </style>
 </head>
@@ -113,23 +87,25 @@
     </div>
   </div>
 
-  <!-- LibreSpeed Client -->
+  <!-- Load official LibreSpeed client -->
   <script src="https://cdn.jsdelivr.net/gh/librespeed/speedtest@5.3.0/speedtest.js"></script>
   <script>
     var s = new Speedtest();
 
     function startTest() {
       s.setParameter("telemetry_level", "basic"); 
-      s.setParameter("test_order", "IP_DL_UL_PING"); 
+      s.setParameter("test_order", "IP_DL_UL_PING");
+
+      // Use LibreSpeed public servers
       s.setParameter("backend_servers", [
-        {name:"LibreSpeed (US)", server:"https://nyc1.openspeed.org/backend/"},
-        {name:"LibreSpeed (Europe)", server:"https://fra.openspeed.org/backend/"}
+        {name:"LibreSpeed - New York", server:"https://nyc1.openspeed.org/backend/"},
+        {name:"LibreSpeed - Germany", server:"https://fra.openspeed.org/backend/"}
       ]);
 
       s.onupdate = function (data) {
-        document.getElementById("download").innerText = data.dlStatus;
-        document.getElementById("upload").innerText = data.ulStatus;
-        document.getElementById("ping").innerText = data.pingStatus;
+        document.getElementById("download").innerText = data.dlStatus || "0";
+        document.getElementById("upload").innerText = data.ulStatus || "0";
+        document.getElementById("ping").innerText = data.pingStatus || "0";
       };
 
       s.onend = function () {
